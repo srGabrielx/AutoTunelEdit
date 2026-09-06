@@ -1,5 +1,5 @@
-import { STYLES } from "../music/styles";
-import type { BassOctave, DrumPatternMode, GenerateOptions, ScaleId, StyleId } from "../music/types";
+import { STYLES } from "../music/styles.ts";
+import type { BassOctave, DrumPatternMode, GenerateOptions, ScaleId, StyleId } from "../music/types.ts";
 
 export function parseOptions(body: unknown): GenerateOptions {
   const value = (body && typeof body === "object" ? body : {}) as Record<string, unknown>;
@@ -9,7 +9,10 @@ export function parseOptions(body: unknown): GenerateOptions {
   const seed = value.seed == null ? undefined : Number(value.seed);
   const key = typeof value.key === "string" ? value.key : "C";
   const scale = typeof value.scale === "string" ? (value.scale as ScaleId) : undefined;
-  const bassOctave = typeof value.bassOctave === "number" ? (value.bassOctave as BassOctave) : undefined;
+  const bassOctaves: readonly BassOctave[] = [-36, -24, -12];
+  const bassOctave = typeof value.bassOctave === "number" && bassOctaves.includes(value.bassOctave as BassOctave)
+    ? (value.bassOctave as BassOctave)
+    : undefined;
   const drumPattern = typeof value.drumPattern === "string" ? (value.drumPattern as DrumPatternMode) : undefined;
   const swing = typeof value.swing === "number" ? Math.max(0, Math.min(100, value.swing)) : undefined;
   const rollDensity = typeof value.rollDensity === "number" ? Math.max(0, Math.min(100, value.rollDensity)) : undefined;

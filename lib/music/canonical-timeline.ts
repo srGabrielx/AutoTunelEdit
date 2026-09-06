@@ -78,6 +78,7 @@ export interface CanonicalTimelineEvent {
     durationMs: number;
   };
   slide?: boolean;
+  durationSec?: number;
 }
 
 export interface CanonicalTimelineDescriptor {

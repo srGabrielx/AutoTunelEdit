@@ -210,7 +210,7 @@ export function generateDrums(options: GenerateOptions): DrumResult {
     }
 
     // 3. Hi-Hats with Rolls obeying Energy Curve
-    const rollChanceThreshold = 1.0 - (effectiveRolls / 100) * 0.55;
+    const rollChanceThreshold = 1.0 - (effectiveRolls / 100) * 0.25; // Reduzido de 0.55 para 0.25 para não embolar os hi-hats
 
     for (let s = barStart; s < barStart + plan.timeline.stepsPerBar; s++) {
       const isStrongBeat = s % 4 === 0;

@@ -500,16 +500,8 @@ function chordPitchForBass(
   step: number,
   octaveOffset: number,
 ): number {
-  let pitch = chordPitch(plan, step, octaveOffset);
-  // Ancorar o 808 estritamente no sub-grave (entre MIDI 24/C1 ~32.7Hz e 42/F#2 ~92.5Hz)
-  // Impedindo que o grave invada médios-agudos
-  while (pitch > 42) {
-    pitch -= 12;
-  }
-  while (pitch < 24) {
-    pitch += 12;
-  }
-  return pitch;
+  const pitch = chordPitch(plan, step, octaveOffset);
+  return Math.min(127, Math.max(0, Math.round(pitch)));
 }
 
 function shapeMelodyForSection(

@@ -3,16 +3,6 @@ import { KEYS } from "../music/styles.ts";
 import type { BassNote, BassResult, GenerateOptions } from "../music/types.ts";
 import { buildCompositionPlan, type CompositionPlan } from "../music/composition-plan.ts";
 
-function clampSubBassPitch(pitch: number): number {
-  let p = pitch;
-  while (p > 42) {
-    p -= 12;
-  }
-  while (p < 24) {
-    p += 12;
-  }
-  return p;
-}
 
 export function generateBass(options: GenerateOptions): BassResult {
   const seed = makeSeed(options.seed);
@@ -49,7 +39,7 @@ export function generateBass(options: GenerateOptions): BassResult {
 
         notes.push({
           step: beatStart,
-          note: clampSubBassPitch(bassRoot + chordRootTone),
+          note: bassRoot + chordRootTone,
           velocity: Math.round(82 + (anchor ? anchor.weight * 18 : 8) + (random() * 8 - 4)),
           duration,
           slide: isSlide,
@@ -65,7 +55,7 @@ export function generateBass(options: GenerateOptions): BassResult {
           if (!notes.some(n => n.step === sa.step) && random() < sa.weight * (comp / 5)) {
             notes.push({
               step: sa.step,
-              note: clampSubBassPitch(bassRoot + chordRootTone),
+              note: bassRoot + chordRootTone,
               velocity: Math.round(70 + (sa.weight * 14)),
               duration: 1,
               slide: random() > 0.7,
@@ -81,7 +71,7 @@ export function generateBass(options: GenerateOptions): BassResult {
     const firstRegion = plan.harmonicGrid[0];
     notes.unshift({
       step: 0,
-      note: clampSubBassPitch(bassRoot + firstRegion.chordDegrees[0]),
+      note: bassRoot + firstRegion.chordDegrees[0],
       velocity: 96,
       duration: 3,
     });

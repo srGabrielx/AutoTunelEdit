@@ -430,7 +430,7 @@ export function renderDspAudio({
             currentFreq = rootFreq * diveFactor;
           } else if (bNote.slide && progress > 0.3) {
             const slideProg = (progress - 0.3) / 0.7;
-            currentFreq = rootFreq * (1.0 + 0.45 * slideProg);
+            currentFreq = rootFreq * Math.pow(2, slideProg); // Glides exactly 1 octave up perfectly in tune
           }
 
           const phaseInc = currentFreq / sampleRate;

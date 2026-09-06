@@ -2,6 +2,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 
 import { generateMelody } from "../lib/engines/melody.ts";
+import { parseOptions } from "../lib/engines/validate.ts";
 import {
   runLegacyBassPipeline,
   runLegacyDrumsPipeline,
@@ -46,6 +47,15 @@ test("forensic: bass octave changes generated pitches, not only metadata", async
     low.notes.map((note) => note.note),
     high.notes.map((note) => note.note),
   );
+  assert.deepEqual(
+    high.notes.map((note) => note.note - 24),
+    low.notes.map((note) => note.note),
+  );
+});
+
+test("forensic: API accepts only supported bass octaves", () => {
+  assert.equal(parseOptions({ ...base, bassOctave: -12 }).bassOctave, -12);
+  assert.equal(parseOptions({ ...base, bassOctave: -18 }).bassOctave, undefined);
 });
 
 test("forensic: drum complexity and groove controls reach the active engine", async () => {
