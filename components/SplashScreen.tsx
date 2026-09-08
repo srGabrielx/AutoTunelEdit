@@ -49,7 +49,7 @@ export default function SplashScreen({ onFinish }: { onFinish: () => void }) {
           objectFit: "cover",
         }}
       >
-        <source src="/Off the Wall.webm" type="video/webm" />
+        <source src="/off-the-wall.webm" type="video/webm" />
       </video>
     </div>
   );
