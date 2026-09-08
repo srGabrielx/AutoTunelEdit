@@ -5,7 +5,7 @@ import {
   type BuildCanonicalTimelineInput,
   type CanonicalTimelineDescriptor,
   type CanonicalTimelineEvent,
-} from "../music/canonical-timeline.ts";
+} from "../music/canonical-timeline";
 
 interface MidiEvent {
   tick: number;

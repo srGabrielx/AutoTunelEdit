@@ -1,6 +1,6 @@
-import { makeSeed, pick, rng } from "./random.ts";
-import type { GenerateOptions, ScaleId, StyleId } from "./types.ts";
-import { GENRE_MELODY_PROFILES } from "../engines/melody-context.ts";
+import { makeSeed, pick, rng } from "./random";
+import type { GenerateOptions, ScaleId, StyleId } from "./types";
+import { GENRE_MELODY_PROFILES } from "../engines/melody-context";
 
 
 export interface PatternTimeline {

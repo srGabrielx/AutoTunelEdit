@@ -39,8 +39,8 @@ export function generateBass(
     const notesInBlock = Math.max(1, Math.floor(16 * rhythmDensity));
     const stepSize = Math.floor(block.durationTicks / notesInBlock);
 
-    const octaveJumpProb = plan.bassProfile?.octaveJumpProbability ?? 0.15;
-    const sustainRatio = plan.bassProfile?.sustainRatio ?? 1.0;
+    const octaveJumpProb = (plan.bassProfile?.octaveJumpProbability ?? 0.15) * 0.2; // Less octave jumps for lower bass
+    const sustainRatio = (plan.bassProfile?.sustainRatio ?? 1.0) * 0.5; // Drier, shorter phrases
     const bassType = plan.bassProfile?.type ?? '808';
 
     for (let i = 0; i < notesInBlock; i++) {
@@ -48,10 +48,10 @@ export function generateBass(
 
       // Octave jump if permitted by profile
       const applyOctaveJump = rng.next() < octaveJumpProb;
-      const octaveOffset = applyOctaveJump ? 0 : -12; // Base root -12, with occasional upper octave
+      const octaveOffset = applyOctaveJump ? -12 : -24; // Lower octaves (-24 base, -12 jump)
       const bassNote = block.rootNote + octaveOffset;
       const baseDuration = Math.min(stepSize, 480);
-      const duration = Math.max(120, Math.floor(baseDuration * sustainRatio));
+      const duration = Math.max(60, Math.floor(baseDuration * sustainRatio)); // Shorter minimum duration
       
       const restProb = plan.bassProfile?.restProbability ?? ((plan.bassProfile?.syncWithKick ?? 0.5) > 0.6 ? 0.9 : 0.6);
       const isRest = rng.next() > restProb;

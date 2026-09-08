@@ -1,6 +1,6 @@
-import { generateDrums } from "../engines/drums.ts";
-import { generateMelody } from "../engines/melody.ts";
-import { buildCanonicalTimeline } from "./canonical-timeline.ts";
+import { generateDrums } from "../engines/drums";
+import { generateMelody } from "../engines/melody";
+import { buildCanonicalTimeline } from "./canonical-timeline";
 import type {
   ArrangementBlockData,
   ArrangementBlockType,
@@ -8,7 +8,7 @@ import type {
   GenerateAllResponseData,
   GenerateDrumsResponseData,
   SelectiveGenerationContext,
-} from "../workers/protocol.ts";
+} from "../workers/protocol";
 import type {
   BassNote,
   BassResult,
@@ -19,11 +19,11 @@ import type {
   MelodyResult,
   ScaleId,
   StyleId,
-} from "./types.ts";
-import { buildCompositionPlan, type CompositionPlan } from "./composition-plan.ts";
-import { deriveSeed, hashHex, hashString, makeSeed, rng } from "./random.ts";
-import { KEYS, SCALES, STYLES } from "./styles.ts";
-import { resolvePresetProfile } from "./preset-resolver.ts";
+} from "./types";
+import { buildCompositionPlan, type CompositionPlan } from "./composition-plan";
+import { deriveSeed, hashHex, hashString, makeSeed, rng } from "./random";
+import { KEYS, SCALES, STYLES } from "./styles";
+import { resolvePresetProfile } from "./preset-resolver";
 
 const PPQ = 960 as const;
 const STEPS_PER_BAR = 16;

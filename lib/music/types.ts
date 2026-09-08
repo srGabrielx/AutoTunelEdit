@@ -33,7 +33,7 @@ export type ArtistPresetId =
 
 export type MelodySynthType = "lead" | "pad" | "pluck" | "arp";
 
-export type BassOctave = -36 | -24 | -12; // C0, C1, C2
+export type BassOctave = -48 | -36 | -24 | -12; // Sub, C0, C1, C2
 export type BassDrive = "clean" | "warm" | "overdrive";
 
 export type DrumPatternMode = "standard" | "half-time" | "double-time" | "triplet-rolls";

@@ -1,7 +1,7 @@
-import { makeSeed } from "../music/random.ts";
-import { STYLES } from "../music/styles.ts";
-import type { DrumHit, DrumResult, DrumRoll, GenerateOptions, StyleId } from "../music/types.ts";
-import { buildCompositionPlan, type CompositionPlan } from "../music/composition-plan.ts";
+import { makeSeed } from "../music/random";
+import { STYLES } from "../music/styles";
+import type { DrumHit, DrumResult, DrumRoll, GenerateOptions, StyleId } from "../music/types";
+import { buildCompositionPlan, type CompositionPlan } from "../music/composition-plan";
 
 // Default Groove DNA per Genre
 const GENRE_GROOVE_DNA: Record<

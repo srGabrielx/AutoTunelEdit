@@ -1,5 +1,5 @@
-import { STYLES } from "../music/styles.ts";
-import type { BassOctave, DrumPatternMode, GenerateOptions, ScaleId, StyleId } from "../music/types.ts";
+import { STYLES } from "../music/styles";
+import type { BassOctave, DrumPatternMode, GenerateOptions, ScaleId, StyleId } from "../music/types";
 
 export function parseOptions(body: unknown): GenerateOptions {
   const value = (body && typeof body === "object" ? body : {}) as Record<string, unknown>;
@@ -9,7 +9,7 @@ export function parseOptions(body: unknown): GenerateOptions {
   const seed = value.seed == null ? undefined : Number(value.seed);
   const key = typeof value.key === "string" ? value.key : "C";
   const scale = typeof value.scale === "string" ? (value.scale as ScaleId) : undefined;
-  const bassOctaves: readonly BassOctave[] = [-36, -24, -12];
+  const bassOctaves: readonly BassOctave[] = [-48, -36, -24, -12];
   const bassOctave = typeof value.bassOctave === "number" && bassOctaves.includes(value.bassOctave as BassOctave)
     ? (value.bassOctave as BassOctave)
     : undefined;

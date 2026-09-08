@@ -1,6 +1,6 @@
-import { makeSeed, rng } from "../music/random.ts";
-import type { GenerateOptions, MelodyResult } from "../music/types.ts";
-import { runMelodyPipeline } from "./melody-pipeline.ts";
+import { makeSeed, rng } from "../music/random";
+import type { GenerateOptions, MelodyResult } from "../music/types";
+import { runMelodyPipeline } from "./melody-pipeline";
 
 export function generateMelody(options: GenerateOptions): MelodyResult {
   const seed = makeSeed(options.seed);

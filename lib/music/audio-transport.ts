@@ -1,14 +1,14 @@
-import { PPQ, ticksToSeconds, type Tick } from "../../core/time/tick.ts";
-import type { GrooveEvent } from "./groove-plan.ts";
+import { PPQ, ticksToSeconds, type Tick } from "../../core/time/tick";
+import type { GrooveEvent } from "./groove-plan";
 import {
   TICKS_PER_STEP,
   buildCanonicalTimeline,
   type CanonicalArrangementBlockInput,
-} from "./canonical-timeline.ts";
+} from "./canonical-timeline";
 import {
   BASS_808_CONFIGS,
   getMelodySynthConfig,
-} from "./synthesis-presets.ts";
+} from "./synthesis-presets";
 import type {
   BassDrive,
   BassResult,
@@ -16,8 +16,8 @@ import type {
   DrumResult,
   MelodyLayer,
   MelodySynthType,
-} from "./types.ts";
-import type { ArrangementBlockData } from "../workers/protocol.ts";
+} from "./types";
+import type { ArrangementBlockData } from "../workers/protocol";
 
 export { PPQ, ticksToSeconds, type Tick };
 
@@ -278,11 +278,11 @@ export class SampleAccurateAudioEngine {
   private initDistortionCurves() {
     const kWarm = 2;
     const kOverdrive = 8;
-    this.distWarmCurve = new Float32Array(128);
-    this.distOverdriveCurve = new Float32Array(128);
+    this.distWarmCurve = new Float32Array(8192);
+    this.distOverdriveCurve = new Float32Array(8192);
 
-    for (let i = 0; i < 128; i++) {
-      const x = (i * 2) / 128 - 1;
+    for (let i = 0; i < 8192; i++) {
+      const x = (i * 2) / 8192 - 1;
       this.distWarmCurve[i] = ((Math.PI + kWarm) * x) / (Math.PI + kWarm * Math.abs(x));
       this.distOverdriveCurve[i] = ((Math.PI + kOverdrive) * x) / (Math.PI + kOverdrive * Math.abs(x));
     }
@@ -892,7 +892,7 @@ export class SampleAccurateAudioEngine {
     osc.frequency.exponentialRampToValueAtTime(endFreq, when + 0.08);
 
     const trackGain = this.getOrCreateTrackGain("drums");
-    gain.gain.setValueAtTime(vol, when);
+    gain.gain.setValueAtTime(Math.max(0.001, vol), when);
     gain.gain.exponentialRampToValueAtTime(0.001, when + 0.32);
 
     osc.connect(gain).connect(trackGain);
@@ -919,7 +919,7 @@ export class SampleAccurateAudioEngine {
 
       const gain = this.ctx.createGain();
       const burstVol = idx === 2 ? vol : vol * 0.55;
-      gain.gain.setValueAtTime(burstVol, when + offset);
+      gain.gain.setValueAtTime(Math.max(0.001, burstVol), when + offset);
       gain.gain.exponentialRampToValueAtTime(0.001, when + offset + (idx === 2 ? 0.16 : 0.015));
 
       noise.connect(filter).connect(gain).connect(trackGain);
@@ -945,7 +945,7 @@ export class SampleAccurateAudioEngine {
 
       const trackGain = this.getOrCreateTrackGain("drums");
       const gain = this.ctx.createGain();
-      gain.gain.setValueAtTime(vol, when);
+      gain.gain.setValueAtTime(Math.max(0.001, vol), when);
       gain.gain.exponentialRampToValueAtTime(0.001, when + dur);
 
       noise.connect(filter).connect(gain).connect(trackGain);
@@ -991,31 +991,33 @@ export class SampleAccurateAudioEngine {
     // Highpass filter for clean transient definition
     const filter = this.ctx.createBiquadFilter();
     filter.type = "highpass";
+    const nyquist = (this.ctx.sampleRate / 2) - 100;
     if (filterCurve) {
-      filter.frequency.setValueAtTime(filterCurve.startHz, when);
+      filter.frequency.setValueAtTime(Math.min(nyquist, Math.max(100, filterCurve.startHz)), when);
       filter.frequency.exponentialRampToValueAtTime(
-        Math.max(100, filterCurve.endHz),
-        when + filterCurve.durationMs / 1000
+        Math.min(nyquist, Math.max(100, filterCurve.endHz)),
+        when + Math.max(0.001, filterCurve.durationMs / 1000)
       );
     } else {
-      filter.frequency.setValueAtTime(6800, when);
+      filter.frequency.setValueAtTime(Math.min(nyquist, 6800), when);
     }
 
     // Lowpass filter to tame ultra-high frequencies (>13.5kHz) that cause harsh digital clipping
     const tameFilter = this.ctx.createBiquadFilter();
     tameFilter.type = "lowpass";
-    tameFilter.frequency.setValueAtTime(13500, when);
+    tameFilter.frequency.setValueAtTime(Math.min(13500, (this.ctx.sampleRate / 2) - 100), when);
     tameFilter.Q.value = 0.707;
 
     const trackGain = this.getOrCreateTrackGain("drums");
     const gain = this.ctx.createGain();
-    const dur = durationSec ? Math.max(0.012, Math.min(0.028, durationSec)) : 0.024;
-    gain.gain.setValueAtTime((velocity / 127) * 0.082, when);
+    const dur = durationSec ? Math.max(0.015, Math.min(0.080, durationSec)) : 0.050;
+    const startVol = Math.max(0.001, (velocity / 127) * 0.082);
+    gain.gain.setValueAtTime(startVol, when);
     gain.gain.exponentialRampToValueAtTime(0.001, when + dur);
 
     noise.connect(filter).connect(tameFilter).connect(gain).connect(trackGain);
     noise.start(when);
-    noise.stop(when + dur + 0.005);
+    noise.stop(when + dur + 0.010);
     this.trackNode(noise);
   }
 
@@ -1027,15 +1029,15 @@ export class SampleAccurateAudioEngine {
 
     const filter = this.ctx.createBiquadFilter();
     filter.type = "highpass";
-    filter.frequency.value = 5800;
+    filter.frequency.value = Math.min(5800, (this.ctx.sampleRate / 2) - 100);
 
     const tameFilter = this.ctx.createBiquadFilter();
     tameFilter.type = "lowpass";
-    tameFilter.frequency.setValueAtTime(14000, when);
+    tameFilter.frequency.setValueAtTime(Math.min(14000, (this.ctx.sampleRate / 2) - 100), when);
 
     const trackGain = this.getOrCreateTrackGain("drums");
     const gain = this.ctx.createGain();
-    gain.gain.setValueAtTime((velocity / 127) * 0.11, when);
+    gain.gain.setValueAtTime(Math.max(0.001, (velocity / 127) * 0.11), when);
     gain.gain.exponentialRampToValueAtTime(0.001, when + dur);
 
     noise.connect(filter).connect(tameFilter).connect(gain).connect(trackGain);
@@ -1095,12 +1097,12 @@ export class SampleAccurateAudioEngine {
     // Parallel Gain Envelopes with smooth sustain
     const sustainHold = Math.min(0.25, durationSec * 0.4);
     
-    cleanGain.gain.setValueAtTime(vol * cfg.cleanSubGain, when);
-    cleanGain.gain.setValueAtTime(vol * cfg.cleanSubGain, when + sustainHold);
+    cleanGain.gain.setValueAtTime(Math.max(0.001, vol * cfg.cleanSubGain), when);
+    cleanGain.gain.setValueAtTime(Math.max(0.001, vol * cfg.cleanSubGain), when + sustainHold);
     cleanGain.gain.exponentialRampToValueAtTime(0.001, when + durationSec);
 
-    satGain.gain.setValueAtTime(vol * cfg.parallelSatGain, when);
-    satGain.gain.setValueAtTime(vol * cfg.parallelSatGain, when + sustainHold);
+    satGain.gain.setValueAtTime(Math.max(0.001, vol * cfg.parallelSatGain), when);
+    satGain.gain.setValueAtTime(Math.max(0.001, vol * cfg.parallelSatGain), when + sustainHold);
     satGain.gain.exponentialRampToValueAtTime(0.001, when + durationSec);
 
     cleanOsc.connect(cleanGain).connect(trackGain);
@@ -1146,7 +1148,7 @@ export class SampleAccurateAudioEngine {
     filter.frequency.exponentialRampToValueAtTime(cfg.filterEndCutoff, when + durationSec * 0.92);
     filter.Q.value = cfg.filterQ;
 
-    gain.gain.setValueAtTime(vol, when);
+    gain.gain.setValueAtTime(Math.max(0.001, vol), when);
     gain.gain.exponentialRampToValueAtTime(0.001, when + durationSec);
 
     osc1.connect(filter);

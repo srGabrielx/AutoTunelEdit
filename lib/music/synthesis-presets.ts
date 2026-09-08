@@ -170,25 +170,25 @@ export interface Bass808SynthConfig {
 
 export const BASS_808_CONFIGS: Record<BassDrive, Bass808SynthConfig> = {
   clean: {
-    cleanSubGain: 0.94,
-    parallelSatGain: 0.06,
+    cleanSubGain: 0.96,
+    parallelSatGain: 0.04,
     pitchDiveStartMultiplier: 1.30,
     pitchDiveDurationSec: 0.020,
-    harmonicCutoffHz: 340,
+    harmonicCutoffHz: 120, // Reduced from 180 (less treble/agudos)
   },
   warm: {
-    cleanSubGain: 0.84,
-    parallelSatGain: 0.20,
+    cleanSubGain: 0.90,
+    parallelSatGain: 0.10,
     pitchDiveStartMultiplier: 1.40,
     pitchDiveDurationSec: 0.025,
-    harmonicCutoffHz: 420,
+    harmonicCutoffHz: 180, // Reduced from 260
   },
   overdrive: {
-    cleanSubGain: 0.74,
-    parallelSatGain: 0.30,
+    cleanSubGain: 0.80,
+    parallelSatGain: 0.20,
     pitchDiveStartMultiplier: 1.48,
     pitchDiveDurationSec: 0.028,
-    harmonicCutoffHz: 480,
+    harmonicCutoffHz: 240, // Reduced from 340
   },
 };
 

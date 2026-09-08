@@ -38,15 +38,15 @@ export function getAllPresets(): PresetDefinition[] {
 }
 
 // Importação e registro dos presets
-import { trapBrPreset } from "./trap/trap-br.ts";
-import { trapUsaPreset } from "./trap/trap-usa.ts";
-import { trapUkPreset } from "./trap/trap-uk.ts";
-import { reggaePreset } from "./reggae/reggae-default.ts";
-import { boombapPreset } from "./boombap/boombap-default.ts";
-import { funkPreset } from "./funk/funk-default.ts";
-import { amapianoPreset } from "./amapiano/amapiano-default.ts";
-import { hiphopPreset } from "./hiphop/hiphop-default.ts";
-import { dubstepPreset } from "./dubstep/dubstep-default.ts";
+import { trapBrPreset } from "./trap/trap-br";
+import { trapUsaPreset } from "./trap/trap-usa";
+import { trapUkPreset } from "./trap/trap-uk";
+import { reggaePreset } from "./reggae/reggae-default";
+import { boombapPreset } from "./boombap/boombap-default";
+import { funkPreset } from "./funk/funk-default";
+import { amapianoPreset } from "./amapiano/amapiano-default";
+import { hiphopPreset } from "./hiphop/hiphop-default";
+import { dubstepPreset } from "./dubstep/dubstep-default";
 
 registerPreset(trapBrPreset);
 registerPreset(trapUsaPreset);

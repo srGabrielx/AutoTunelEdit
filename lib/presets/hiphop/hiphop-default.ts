@@ -1,4 +1,4 @@
-import type { PresetDefinition } from "../catalog.ts";
+import type { PresetDefinition } from "../catalog";
 
 export const hiphopPreset: PresetDefinition = {
   id: "hiphop-default",

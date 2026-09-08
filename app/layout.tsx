@@ -1,6 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import "./globals.css";
-import InstallBanner from "../components/InstallBanner";
+
 
 export const metadata: Metadata = {
   title: "AutoTunel Studio - Gerador de Melodias, Drums & 808",
@@ -22,7 +22,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="pt-BR" suppressHydrationWarning>
+    <html lang="pt-BR" >
       <head>
         <link rel="apple-touch-icon" href="/logo.png" />
         <script
@@ -43,9 +43,9 @@ export default function RootLayout({
           }}
         />
       </head>
-      <body suppressHydrationWarning>
+      <body >
         {children}
-        <InstallBanner />
+        
       </body>
     </html>
   );

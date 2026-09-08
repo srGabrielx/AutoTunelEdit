@@ -587,15 +587,6 @@ const MelodyLayerCard = memo(function MelodyLayerCard({
         registerPlayhead={registerPlayhead}
       />
 
-      <div className="sequencer-intensity-bar">
-        <div className="sequencer-intensity-legend">
-          <span className="intensity-pill forte">Forte (105)</span>
-          <span className="intensity-pill medio">Média (80)</span>
-          <span className="intensity-pill suave">Suave (55)</span>
-        </div>
-        <span>Clique: Alternar intensidade · Dir: Limpar</span>
-      </div>
-
       <div className="actions">
         <button className="primary" disabled={busy !== null} onClick={() => onGenerate(layer.id)}>
           {busy === layer.id ? (
@@ -754,7 +745,7 @@ export default function BeatStudio() {
 
   // 808 Bass Engine State
   const [bassStyle, setBassStyle] = useState<StyleId>("trap-br");
-  const [bassOctave, setBassOctave] = useState<BassOctave>(-24); // C1 default
+  const [bassOctave, setBassOctave] = useState<BassOctave>(-36); // C0/C1 default
   const [bassDrive, setBassDrive] = useState<BassDrive>("warm");
   const [bass, setBass] = useState<BassResult | null>(null);
   const [muteBass, setMuteBass] = useState(false);
@@ -2249,6 +2240,7 @@ export default function BeatStudio() {
             <label>
               Afinador de Oitava
               <select value={bassOctave} onChange={(e) => setBassOctave(Number(e.target.value) as BassOctave)}>
+                <option value={-48}>Infra Sub (Sub / -48st)</option>
                 <option value={-36}>Deep Sub (C0 / -36st)</option>
                 <option value={-24}>Punch Sub (C1 / -24st)</option>
                 <option value={-12}>Mid Bass (C2 / -12st)</option>
@@ -2277,15 +2269,6 @@ export default function BeatStudio() {
             registerPlayhead={registerPlayhead}
           />
 
-          <div className="sequencer-intensity-bar">
-            <div className="sequencer-intensity-legend">
-              <span className="intensity-pill forte">Forte (110)</span>
-              <span className="intensity-pill medio">Médio (82)</span>
-              <span className="intensity-pill suave">Suave (58)</span>
-            </div>
-            <span>Clique: Alternar intensidade · Dir: Limpar</span>
-          </div>
-
           <div className="actions">
             <button className="primary" disabled={busy !== null} onClick={() => generateEngine("bass")}>
               {busy === "bass" ? (
@@ -2301,7 +2284,7 @@ export default function BeatStudio() {
           <div className="message">
             {bass ? (
               <span>
-                <SeedInput key={bass.seed} seed={bass.seed} onApply={(s) => generateEngine("bass", s)} /> · Afinado em <b>{key}</b> ({bassOctave === -36 ? "C0" : bassOctave === -24 ? "C1" : "C2"}) · <b>{bass.notes.length}</b> ataques
+                <SeedInput key={bass.seed} seed={bass.seed} onApply={(s) => generateEngine("bass", s)} /> · Afinado em <b>{key}</b> ({bassOctave === -48 ? "Sub" : bassOctave === -36 ? "C0" : bassOctave === -24 ? "C1" : "C2"}) · <b>{bass.notes.length}</b> ataques
               </span>
             ) : (
               "Motor 808 autônomo com afinação procedural."
@@ -2480,16 +2463,6 @@ export default function BeatStudio() {
             registerContainer={registerContainer}
             registerPlayhead={registerPlayhead}
           />
-
-          <div className="sequencer-intensity-bar">
-            <div className="sequencer-intensity-legend">
-              <span className="intensity-pill forte">Kick (96)</span>
-              <span className="intensity-pill forte" style={{ background: "rgba(168, 85, 247, 0.22)", borderColor: "rgba(168, 85, 247, 0.4)", color: "#c084fc" }}>Snare (90)</span>
-              <span className="intensity-pill medio">Hat (72)</span>
-              <span className="intensity-pill suave">Open-Hat (65)</span>
-            </div>
-            <span>Clique: Alternar peça/intensidade · Dir: Limpar</span>
-          </div>
 
           <div className="actions">
             <button className="primary" disabled={busy !== null} onClick={() => generateEngine("drums")}>

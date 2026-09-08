@@ -7,7 +7,7 @@
  * set of common chord progressions expressed as scale-degree triads.
  */
 
-import type { ScaleId, StyleId } from "../music/types.ts";
+import type { ScaleId, StyleId } from "../music/types";
 
 // ============================================================
 // CHORD PROGRESSIONS BY GENRE

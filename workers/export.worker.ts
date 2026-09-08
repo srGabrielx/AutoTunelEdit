@@ -1,6 +1,6 @@
-import { encodeWav16Bit, renderDspAudio } from "../lib/export/dsp-renderer.ts";
-import { createIndividualMidiFiles, createMidiExport } from "../lib/export/midi.ts";
-import { createZipArchive } from "../lib/export/zip-builder.ts";
+import { encodeWav16Bit, renderDspAudio } from "../lib/export/dsp-renderer";
+import { createIndividualMidiFiles, createMidiExport } from "../lib/export/midi";
+import { createZipArchive } from "../lib/export/zip-builder";
 import type {
   ExportMidiPayload,
   ExportWavPayload,

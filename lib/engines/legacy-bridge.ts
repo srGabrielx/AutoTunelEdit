@@ -1,13 +1,13 @@
-import { generateBass } from "./bass.ts";
-import { generateDrums } from "./drums.ts";
+import { generateBass } from "./bass";
+import { generateDrums } from "./drums";
 import type {
   BassNote,
   BassResult,
   DrumHit,
   DrumResult,
   GenerateOptions,
-} from "../music/types.ts";
-import { deriveSeed, makeSeed, rng } from "../music/random.ts";
+} from "../music/types";
+import { deriveSeed, makeSeed, rng } from "../music/random";
 
 const STEPS_PER_BAR = 16;
 

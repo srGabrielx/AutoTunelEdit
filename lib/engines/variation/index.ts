@@ -44,7 +44,7 @@ export function generateVariation(params: VariationParams): MusicalEvent[] {
       // Mutation operations (simple pitch shift or velocity shift)
       const opChoice = rng.nextInt(0, 10);
       
-      let newEvent = { ...sourceEvent, tick: sourceEvent.tick + tickOffset };
+      const newEvent = { ...sourceEvent, tick: sourceEvent.tick + tickOffset };
       let semanticChange = false;
 
       if (opChoice < 3 && newEvent.type === 'NOTE_ON') {

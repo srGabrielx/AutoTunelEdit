@@ -5,12 +5,12 @@ import {
   timelineDurationSamples,
   type CanonicalArrangementBlockInput,
   type CanonicalTimelineDescriptor,
-} from "../music/canonical-timeline.ts";
+} from "../music/canonical-timeline";
 import {
   BASS_808_CONFIGS,
   getMelodySynthConfig,
   MASTER_BUS_CONFIG,
-} from "../music/synthesis-presets.ts";
+} from "../music/synthesis-presets";
 import type {
   BassDrive,
   DrumKitMode,

@@ -16,6 +16,7 @@ export default function TauriRedirect({ children }: { children: React.ReactNode 
        window.location.protocol === 'asset:');
        
     if (isTauriEnv) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setIsTauri(true);
       router.replace("/studio");
     }

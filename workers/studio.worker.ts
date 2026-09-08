@@ -16,8 +16,10 @@ import type {
 import {
   generateFullComposition,
   regenerateCompositionTrack,
-} from "../lib/music/full-composition.ts";
-import { deriveSeed } from "../lib/music/random.ts";
+} from "../lib/music/full-composition";
+import { generateMelody } from "../lib/engines/melody";
+import { runLegacyBassPipeline, runLegacyDrumsPipeline } from "../lib/engines/legacy-bridge";
+import { deriveSeed } from "../lib/music/random";
 
 interface DedicatedWorkerScope {
   postMessage: (msg: unknown, transfer?: Transferable[]) => void;
@@ -83,25 +85,14 @@ workerScope.onmessage = async (event: MessageEvent<WorkerRequest>) => {
           workerScope.postMessage(successRes);
           break;
         }
-        const res = await fetch("/api/melody", {
-          method: "POST",
-          headers: { "content-type": "application/json" },
-          signal: controller.signal,
-          body: JSON.stringify({
-            style: p.style,
-            bpm: p.bpm,
-            key: p.key,
-            scale: p.scale,
-            complexity: p.complexity,
-            seed,
-          }),
+        const data: MelodyResult = generateMelody({
+          style: p.style,
+          bpm: p.bpm,
+          key: p.key,
+          scale: p.scale,
+          complexity: p.complexity,
+          seed,
         });
-
-        if (!res.ok) {
-          throw { engine: "melody", message: `Falha na rota /api/melody (${res.status})` };
-        }
-
-        const data: MelodyResult = await res.json();
         const successRes: WorkerSuccessResponse = {
           type: "generate-melody",
           requestId: req.requestId,
@@ -134,26 +125,15 @@ workerScope.onmessage = async (event: MessageEvent<WorkerRequest>) => {
           workerScope.postMessage(successRes);
           break;
         }
-        const res = await fetch("/api/bass", {
-          method: "POST",
-          headers: { "content-type": "application/json" },
-          signal: controller.signal,
-          body: JSON.stringify({
-            style: p.style,
-            bpm: p.bpm,
-            key: p.key,
-            scale: p.scale,
-            bassOctave: p.bassOctave,
-            complexity: p.complexity,
-            seed,
-          }),
+        const data: BassResult = await runLegacyBassPipeline({
+          style: p.style,
+          bpm: p.bpm,
+          key: p.key,
+          scale: p.scale,
+          bassOctave: p.bassOctave,
+          complexity: p.complexity,
+          seed,
         });
-
-        if (!res.ok) {
-          throw { engine: "bass", message: `Falha na rota /api/bass (${res.status})` };
-        }
-
-        const data: BassResult = await res.json();
         const successRes: WorkerSuccessResponse = {
           type: "generate-bass",
           requestId: req.requestId,
@@ -185,27 +165,16 @@ workerScope.onmessage = async (event: MessageEvent<WorkerRequest>) => {
           workerScope.postMessage(successRes);
           break;
         }
-        const res = await fetch("/api/drums", {
-          method: "POST",
-          headers: { "content-type": "application/json" },
-          signal: controller.signal,
-          body: JSON.stringify({
-            style: p.style,
-            bpm: p.bpm,
-            drumPattern: p.drumPattern,
-            complexity: p.complexity,
-            swing: p.swing,
-            rollDensity: p.rollDensity,
-            humanize: p.humanize,
-            seed,
-          }),
+        const data: DrumResult = await runLegacyDrumsPipeline({
+          style: p.style,
+          bpm: p.bpm,
+          drumPattern: p.drumPattern,
+          complexity: p.complexity,
+          swing: p.swing,
+          rollDensity: p.rollDensity,
+          humanize: p.humanize,
+          seed,
         });
-
-        if (!res.ok) {
-          throw { engine: "drums", message: `Falha na rota /api/drums (${res.status})` };
-        }
-
-        const data: DrumResult = await res.json();
         const successRes: WorkerSuccessResponse = {
           type: "generate-drums",
           requestId: req.requestId,

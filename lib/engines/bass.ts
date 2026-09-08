@@ -1,7 +1,7 @@
-import { makeSeed, rng } from "../music/random.ts";
-import { KEYS } from "../music/styles.ts";
-import type { BassNote, BassResult, GenerateOptions } from "../music/types.ts";
-import { buildCompositionPlan, type CompositionPlan } from "../music/composition-plan.ts";
+import { makeSeed, rng } from "../music/random";
+import { KEYS } from "../music/styles";
+import type { BassNote, BassResult, GenerateOptions } from "../music/types";
+import { buildCompositionPlan, type CompositionPlan } from "../music/composition-plan";
 
 
 export function generateBass(options: GenerateOptions): BassResult {
@@ -11,7 +11,7 @@ export function generateBass(options: GenerateOptions): BassResult {
   const plan: CompositionPlan = options.compositionPlan ?? buildCompositionPlan(options, random);
 
   const rootMidi = KEYS[plan.key] ?? 60;
-  const octaveOffset = options.bassOctave ?? -24;
+  const octaveOffset = options.bassOctave ?? -36;
   const bassRoot = rootMidi + octaveOffset;
 
   const comp = Math.min(5, Math.max(1, options.complexity || 3));
@@ -34,8 +34,8 @@ export function generateBass(options: GenerateOptions): BassResult {
       const isStrongAnchor = anchor && anchor.type === "downbeat";
 
       if (isStrongAnchor || (anchor && random() < anchor.weight * (comp / 3))) {
-        const isSlide = comp >= 3 && random() > 0.7;
-        const duration = isSlide ? 1 : (comp >= 3 && random() > 0.5 ? 3 : 2);
+        const isSlide = false; // No rolls/slides as requested
+        const duration = comp >= 3 && random() > 0.5 ? 2 : 1; // Shorter and drier
 
         notes.push({
           step: beatStart,
@@ -52,13 +52,13 @@ export function generateBass(options: GenerateOptions): BassResult {
         const syncAnchors = plan.rhythmicAnchors.filter(a => a.step > beatStart && a.step < beatStart + 4 && a.type === "syncopation");
         
         for (const sa of syncAnchors) {
-          if (!notes.some(n => n.step === sa.step) && random() < sa.weight * (comp / 5)) {
+          if (!notes.some(n => n.step === sa.step) && random() < (sa.weight * (comp / 5)) * 0.5) { // less notes for different, drier phrasing
             notes.push({
               step: sa.step,
               note: bassRoot + chordRootTone,
               velocity: Math.round(70 + (sa.weight * 14)),
               duration: 1,
-              slide: random() > 0.7,
+              slide: false, // No rolls/slides
             });
           }
         }
@@ -73,7 +73,7 @@ export function generateBass(options: GenerateOptions): BassResult {
       step: 0,
       note: bassRoot + firstRegion.chordDegrees[0],
       velocity: 96,
-      duration: 3,
+      duration: 2, // Shorter duration
     });
   }
 

@@ -8,7 +8,10 @@ export default function UserProfileButton({ className = "" }: { className?: stri
   const [profile, setProfile] = useState<UserProfileData | null>(null);
 
   useEffect(() => {
-    setProfile(loadUserProfile());
+    if (isOpen) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setProfile(loadUserProfile());
+    }
   }, [isOpen]);
 
   return (

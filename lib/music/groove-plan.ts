@@ -1,4 +1,4 @@
-import type { DrumHit, DrumRoll } from "./types.ts";
+import type { DrumHit, DrumRoll } from "./types";
 
 export interface GrooveEvent {
   eventId: string;

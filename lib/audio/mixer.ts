@@ -1,4 +1,4 @@
-import { MASTER_BUS_CONFIG } from "../music/synthesis-presets.ts";
+import { MASTER_BUS_CONFIG } from "../music/synthesis-presets";
 
 /**
  * Mixer

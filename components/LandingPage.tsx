@@ -256,9 +256,9 @@ export default function LandingPage() {
   };
 
   const handlePwaInstall = () => {
-    if (typeof window !== "undefined" && window.deferredPWAInstallPrompt) {
-      window.deferredPWAInstallPrompt.prompt().then(() => {
-        window.deferredPWAInstallPrompt = undefined;
+    if (typeof window !== "undefined" && (window as any).deferredPWAInstallPrompt) {
+      (window as any).deferredPWAInstallPrompt.prompt().then(() => {
+        (window as any).deferredPWAInstallPrompt = undefined;
       });
     } else {
       alert("Para instalar no celular: toque no menu do seu navegador (três pontinhos no Chrome ou botão de compartilhar no Safari) e selecione 'Adicionar à tela inicial'!");

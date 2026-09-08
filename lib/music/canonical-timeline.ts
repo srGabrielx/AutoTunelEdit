@@ -1,4 +1,4 @@
-import { buildGrooveEventPlan } from "./groove-plan.ts";
+import { buildGrooveEventPlan } from "./groove-plan";
 import type {
   BassResult,
   DrumResult,

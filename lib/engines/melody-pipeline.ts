@@ -16,14 +16,14 @@
  *  7. Final validation (scale membership, register bounds)
  */
 
-import { pick } from "../music/random.ts";
-import { KEYS, SCALES, STYLES } from "../music/styles.ts";
-import type { GenerateOptions, MelodyNote, StyleId } from "../music/types.ts";
+import { pick } from "../music/random";
+import { KEYS, SCALES, STYLES } from "../music/styles";
+import type { GenerateOptions, MelodyNote, StyleId } from "../music/types";
 import {
   GENRE_MELODY_PROFILES,
   type ChordDegrees,
   type GenreMelodyProfile,
-} from "./melody-context.ts";
+} from "./melody-context";
 
 // ============================================================
 // INTERNAL TYPES

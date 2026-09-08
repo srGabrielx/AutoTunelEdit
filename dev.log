@@ -1,0 +1,34 @@
+
+> beatforge-studio@0.1.0 dev
+> next dev -p 3000 -H 0.0.0.0
+
+▲ Next.js 16.2.6 (Turbopack)
+- Local:         http://localhost:3000
+- Network:       http://0.0.0.0:3000
+✓ Ready in 665ms
+
+○ Compiling / ...
+ GET / 200 in 5.3s (next.js: 5.0s, application-code: 319ms)
+ GET / 200 in 119ms (next.js: 5ms, application-code: 114ms)
+ GET / 200 in 84ms (next.js: 5ms, application-code: 78ms)
+⚠ Blocked cross-origin request to Next.js dev resource /_next/webpack-hmr from "ais-dev-koo34acws4pmhpjahrl6xk-443643830251.us-east1.run.app".
+Cross-origin access to Next.js dev resources is blocked by default for safety.
+
+To allow this host in development, add it to "allowedDevOrigins" in next.config.js and restart the dev server:
+
+// next.config.js
+module.exports = {
+  allowedDevOrigins: ['ais-dev-koo34acws4pmhpjahrl6xk-443643830251.us-east1.run.app'],
+}
+
+Read more: https://nextjs.org/docs/app/api-reference/config/next-config-js/allowedDevOrigins
+Error: Turbopack build failed with 1 errors:
+./app
+Error: Next.js inferred your workspace root, but it may not be correct.
+    We couldn't find the Next.js package (next/package.json) from the project directory: /app/applet/app
+     To fix this, set turbopack.root in your Next.js config, or ensure the Next.js package is resolvable from this directory.
+    Note: For security and performance reasons, files outside of the project directory will not be compiled.
+    See https://nextjs.org/docs/app/api-reference/config/next-config-js/turbopack#root-directory for more information.
+
+    at ignore-listed frames
+[?25h
