@@ -157,6 +157,84 @@ export function getMelodySynthConfig(synthType: MelodySynthType, style: StyleId 
         osc2Type: "sawtooth",
         baseVol: 0.19,
       };
+    case "brass":
+      return {
+        voiceCount: 3, // Fat brass needs more voices
+        detuneCents: 12,
+        gainCompensation: 1 / Math.sqrt(3),
+        filterStartCutoff: 4500,
+        filterEndCutoff: 800,
+        filterQ: 1.1,
+        decayExp: 2.5,
+        osc1Type: "sawtooth",
+        osc2Type: "square",
+        baseVol: 0.25,
+      };
+    case "keys":
+      return {
+        voiceCount: 2,
+        detuneCents: 3,
+        gainCompensation,
+        filterStartCutoff: 2000,
+        filterEndCutoff: 400,
+        filterQ: 1.3,
+        decayExp: 3.5,
+        osc1Type: "triangle",
+        osc2Type: "sine",
+        baseVol: 0.28,
+      };
+    case "bell":
+      return {
+        voiceCount: 2,
+        detuneCents: 15, // Inharmonic partials
+        gainCompensation,
+        filterStartCutoff: 8000,
+        filterEndCutoff: 1200,
+        filterQ: 2.0,
+        decayExp: 6.0,
+        osc1Type: "sine",
+        osc2Type: "square", // Will be heavily filtered
+        baseVol: 0.22,
+      };
+    case "flute":
+      return {
+        voiceCount: 2,
+        detuneCents: 4,
+        gainCompensation,
+        filterStartCutoff: 1800,
+        filterEndCutoff: 1200,
+        filterQ: 1.2,
+        decayExp: 2.0,
+        osc1Type: "sine",
+        osc2Type: "triangle",
+        baseVol: 0.30,
+      };
+    case "strings":
+      return {
+        voiceCount: 3,
+        detuneCents: 10,
+        gainCompensation: 1 / Math.sqrt(3),
+        filterStartCutoff: 3500,
+        filterEndCutoff: 1800,
+        filterQ: 1.0,
+        decayExp: 1.5,
+        osc1Type: "sawtooth",
+        osc2Type: "sawtooth",
+        baseVol: 0.18,
+      };
+    case "choir":
+      return {
+        voiceCount: 3,
+        detuneCents: 14,
+        gainCompensation: 1 / Math.sqrt(3),
+        filterStartCutoff: 2200,
+        filterEndCutoff: 800,
+        filterQ: 0.8,
+        decayExp: 1.2,
+        osc1Type: "triangle",
+        osc2Type: "sawtooth",
+        baseVol: 0.20,
+      };
   }
 }
 
@@ -172,25 +250,55 @@ export const BASS_808_CONFIGS: Record<BassDrive, Bass808SynthConfig> = {
   clean: {
     cleanSubGain: 0.96,
     parallelSatGain: 0.04,
-    pitchDiveStartMultiplier: 1.30,
-    pitchDiveDurationSec: 0.020,
+    pitchDiveStartMultiplier: 1.08,
+    pitchDiveDurationSec: 0.015,
     harmonicCutoffHz: 120, // Reduced from 180 (less treble/agudos)
   },
   warm: {
     cleanSubGain: 0.90,
-    parallelSatGain: 0.10,
-    pitchDiveStartMultiplier: 1.40,
-    pitchDiveDurationSec: 0.025,
+    parallelSatGain: 0.08,
+    pitchDiveStartMultiplier: 1.12,
+    pitchDiveDurationSec: 0.020,
     harmonicCutoffHz: 180, // Reduced from 260
   },
   overdrive: {
-    cleanSubGain: 0.80,
-    parallelSatGain: 0.20,
-    pitchDiveStartMultiplier: 1.48,
-    pitchDiveDurationSec: 0.028,
-    harmonicCutoffHz: 240, // Reduced from 340
+    cleanSubGain: 0.85,
+    parallelSatGain: 0.15,
+    pitchDiveStartMultiplier: 1.15,
+    pitchDiveDurationSec: 0.025,
+    harmonicCutoffHz: 200, // Reduced from 340
   },
 };
+
+/**
+ * Shared output-stage defaults. Keeping these separate from the tone presets
+ * lets both realtime and offline renderers apply the same headroom policy
+ * without changing the sound-design values above.
+ */
+export const BASS_808_MIX_CONFIG = {
+  baseGain: 0.8,
+  outputHighpassHz: 24,
+  outputLowpassHz: 190,
+  outputFilterQ: 0.65,
+  chokeReleaseSec: 0.012,
+} as const;
+
+export const HAT_MIX_CONFIG = {
+  closedGain: 0.075,
+  openGain: 0.09,
+  closedMaxDurationSec: 0.06,
+  openDurationSec: 0.18,
+  closedLowpassHz: 12_000,
+  openLowpassHz: 11_500,
+  busGain: 0.9,
+  compressorThresholdDb: -14,
+  compressorKneeDb: 6,
+  compressorRatio: 6,
+  compressorAttackSec: 0.001,
+  compressorReleaseSec: 0.04,
+  maxVoices: 3,
+  chokeReleaseSec: 0.008,
+} as const;
 
 export const MASTER_BUS_CONFIG = {
   dcBlockerR: 0.995,

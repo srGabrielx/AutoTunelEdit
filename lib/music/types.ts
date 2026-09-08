@@ -31,7 +31,7 @@ export type ArtistPresetId =
   | "15-kendrick-dna"
   | "16-skrillex-bangarang";
 
-export type MelodySynthType = "lead" | "pad" | "pluck" | "arp";
+export type MelodySynthType = "lead" | "pad" | "pluck" | "arp" | "brass" | "keys" | "bell" | "flute" | "strings" | "choir";
 
 export type BassOctave = -48 | -36 | -24 | -12; // Sub, C0, C1, C2
 export type BassDrive = "clean" | "warm" | "overdrive";

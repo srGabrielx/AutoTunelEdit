@@ -6,6 +6,7 @@
     "install:ci": "bash scripts/install-ci.sh",
     "dev": "next dev -p 3000 -H 0.0.0.0",
     "build": "next build",
+    "vercel:build": "next build",
     "start": "next start",
     "test": "node scripts/run-tests.mjs",
     "validate:artifact": "bash scripts/validate-artifact.sh",

@@ -78,7 +78,7 @@ export const ARTIST_PRESETS: Record<ArtistPresetId, ArtistPresetConfig> = {
     style: "trap-br",
     complexity: 4,
     description: "Lead psicodélico, 808 pesado de Trap BR com slides rápidos e ambiência imersiva.",
-    preferredSynths: ["pluck", "pad", "lead"],
+    preferredSynths: ["pluck", "pad", "lead", "flute", "keys"],
   },
   "2-travis-fein": {
     label: "2. Travis Scott - FE!N / Goosebumps (Dark Trap)",
@@ -90,7 +90,7 @@ export const ARTIST_PRESETS: Record<ArtistPresetId, ArtistPresetConfig> = {
     style: "trap-usa",
     complexity: 4,
     description: "Tensão sombria, sintetizadores distorcidos e 808 sub de alto impacto.",
-    preferredSynths: ["lead", "pad", "arp"],
+    preferredSynths: ["lead", "pad", "arp", "brass", "choir"],
   },
   "3-centralcee-doja": {
     label: "3. Central Cee - Doja / Sprinter (UK Drill)",
@@ -102,7 +102,7 @@ export const ARTIST_PRESETS: Record<ArtistPresetId, ArtistPresetConfig> = {
     style: "trap-uk",
     complexity: 4,
     description: "Hi-hat triplets com pitch drop, kicks fora do grid e contra-tempos drill.",
-    preferredSynths: ["pluck", "pad", "lead"],
+    preferredSynths: ["pluck", "pad", "lead", "strings"],
   },
   "4-metro-superhero": {
     label: "4. Metro Boomin - Superhero / Creepin (Cinematic Trap)",
@@ -114,7 +114,7 @@ export const ARTIST_PRESETS: Record<ArtistPresetId, ArtistPresetConfig> = {
     style: "trap-usa",
     complexity: 4,
     description: "Orquestração melancólica de bells, graves afinados e snares pontuais.",
-    preferredSynths: ["pluck", "pad", "lead"],
+    preferredSynths: ["pluck", "pad", "bell", "strings", "choir"],
   },
   "5-veigh-novobalanco": {
     label: "5. Veigh - Novo Balanço / Mandrake (Trap BR)",
@@ -126,7 +126,7 @@ export const ARTIST_PRESETS: Record<ArtistPresetId, ArtistPresetConfig> = {
     style: "trap-br",
     complexity: 4,
     description: "Guitarras acústicas/plucks com groove moderno e 808 encorpado.",
-    preferredSynths: ["pluck", "arp", "pad"],
+    preferredSynths: ["pluck", "arp", "keys", "pad"],
   },
   "6-drake-richflex": {
     label: "6. Drake & 21 Savage - Rich Flex (Midnight OVO)",
@@ -138,7 +138,7 @@ export const ARTIST_PRESETS: Record<ArtistPresetId, ArtistPresetConfig> = {
     style: "trap-usa",
     complexity: 3,
     description: "Pads aveludados e atmosfera noturna com baterias nítidas.",
-    preferredSynths: ["pad", "pluck", "lead"],
+    preferredSynths: ["pad", "pluck", "keys", "lead"],
   },
   "7-mchariel-mandelao": {
     label: "7. MC Hariel & DJ Arana - Montagem 2000 (Funk SP)",

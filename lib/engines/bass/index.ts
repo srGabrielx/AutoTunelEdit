@@ -48,8 +48,9 @@ export function generateBass(
 
       // Octave jump if permitted by profile
       const applyOctaveJump = rng.next() < octaveJumpProb;
-      const octaveOffset = applyOctaveJump ? -12 : -24; // Lower octaves (-24 base, -12 jump)
-      const bassNote = block.rootNote + octaveOffset;
+      // Força o 808 para a oitava de sub-grave (C1=24 até B1=35)
+      let bassNote = (block.rootNote % 12) + 24;
+      if (applyOctaveJump) bassNote += 12;
       const baseDuration = Math.min(stepSize, 480);
       const duration = Math.max(60, Math.floor(baseDuration * sustainRatio)); // Shorter minimum duration
       

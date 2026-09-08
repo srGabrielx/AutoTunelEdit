@@ -8,6 +8,7 @@ import {
 } from "../music/canonical-timeline";
 import {
   BASS_808_CONFIGS,
+  DRUM_KIT_SYNTH_CONFIGS,
   getMelodySynthConfig,
   MASTER_BUS_CONFIG,
 } from "../music/synthesis-presets";
@@ -406,7 +407,7 @@ export function renderDspAudio({
           ticksToSamples(bNote.endTick - bNote.startTick, safeBpm, sampleRate)
         );
         const rootFreq = 440 * Math.pow(2, (bNote.pitch - 69) / 12);
-        const baseVel = (bNote.velocity / 127) * 0.52 * effectiveBassVol;
+        const baseVel = (bNote.velocity / 127) * 0.65 * effectiveBassVol; // Synced with live preview
 
         const satLpFilter = new BiquadFilter();
         satLpFilter.setLowpass(cfg.harmonicCutoffHz || 420, 0.707, sampleRate);
@@ -463,10 +464,22 @@ export function renderDspAudio({
 
     // --- 3. SINTETIZAR DRUMS (Kick, Snare, Hi-Hats from Single Groove Plan) ---
     if (!muteDrums && drumEvents.length > 0 && !trackSettings["drums"]?.muted) {
-      drumEvents.forEach((ev) => {
+      drumEvents.forEach((ev, idx) => {
         const startSample =
           loopOffsetSamples + ticksToSamples(ev.startTick, safeBpm, sampleRate);
         const currentVel = ev.velocity;
+
+        // CHOKE GROUP: Encontra o próximo hi-hat para truncar a duração se necessário
+        let nextHatSample = totalSamples;
+        if (ev.instrument === "open-hat" || ev.instrument === "closed-hat") {
+          for (let k = idx + 1; k < drumEvents.length; k++) {
+            const nextEv = drumEvents[k];
+            if (nextEv.instrument === "open-hat" || nextEv.instrument === "closed-hat") {
+               nextHatSample = loopOffsetSamples + ticksToSamples(nextEv.startTick, safeBpm, sampleRate);
+               break;
+            }
+          }
+        }
 
         if (ev.instrument === "kick") {
           const durSec = 0.34;
@@ -551,8 +564,11 @@ export function renderDspAudio({
           });
         } else if (ev.instrument === "open-hat") {
           const durSec = 0.20;
-          const durSamples = Math.floor(durSec * sampleRate);
-          const vel = (currentVel / 127) * 0.16 * effectiveDrumsVol;
+          let durSamples = Math.floor(durSec * sampleRate);
+          if (startSample + durSamples > nextHatSample) {
+            durSamples = nextHatSample - startSample;
+          }
+          const vel = (currentVel / 127) * 0.11 * effectiveDrumsVol; // Synced with live preview
           const inharmonicFreqs = [245, 306, 384, 422, 659, 866];
 
           const hpFilter = new BiquadFilter();
@@ -579,8 +595,11 @@ export function renderDspAudio({
         } else {
           // Closed Hat with Pitch Cents, Inharmonic Metallic Synthesis and Roll Duration Control
           const durSec = ev.durationSec ? Math.max(0.012, Math.min(0.028, ev.durationSec)) : 0.025;
-          const durSamples = Math.floor(durSec * sampleRate);
-          const vel = (currentVel / 127) * 0.11 * effectiveDrumsVol;
+          let durSamples = Math.floor(durSec * sampleRate);
+          if (startSample + durSamples > nextHatSample) {
+            durSamples = nextHatSample - startSample;
+          }
+          const vel = (currentVel / 127) * 0.082 * effectiveDrumsVol; // Synced with live preview
           const inharmonicFreqs = [245, 306, 384, 422, 659, 866];
 
           const hpFilter = new BiquadFilter();

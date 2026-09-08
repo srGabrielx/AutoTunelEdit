@@ -7,6 +7,9 @@ import {
 } from "./canonical-timeline";
 import {
   BASS_808_CONFIGS,
+  BASS_808_MIX_CONFIG,
+  DRUM_KIT_SYNTH_CONFIGS,
+  HAT_MIX_CONFIG,
   getMelodySynthConfig,
 } from "./synthesis-presets";
 import type {
@@ -83,6 +86,23 @@ export interface ScheduledStepEvent {
   drumKit: DrumKitMode;
 }
 
+interface ActiveHatVoice {
+  source: AudioBufferSourceNode;
+  gain: GainNode;
+  startedAt: number;
+  envelopeEndAt: number;
+  stopAt: number;
+  peakGain: number;
+  isOpen: boolean;
+}
+
+interface ActiveBassVoice {
+  cleanOsc: OscillatorNode;
+  satOsc: OscillatorNode;
+  outputGain: GainNode;
+  stopAt: number;
+}
+
 export class SampleAccurateAudioEngine {
   private ctx: AudioContext | null = null;
   private delayNode: DelayNode | null = null;
@@ -90,6 +110,8 @@ export class SampleAccurateAudioEngine {
   private masterGain: GainNode | null = null;
   private masterLimiter: DynamicsCompressorNode | null = null;
   private bassSidechainGain: GainNode | null = null;
+  private hatBusGain: GainNode | null = null;
+  private hatBusLimiter: DynamicsCompressorNode | null = null;
 
   // Per-track persistent GainNodes and Stereo Panners
   private trackGainNodes: Map<string, GainNode> = new Map();
@@ -99,8 +121,8 @@ export class SampleAccurateAudioEngine {
 
   // Pre-allocated noise buffers per AudioContext
   private snareNoiseBuffer: AudioBuffer | null = null;
-  private hatNoiseBuffer: AudioBuffer | null = null;
-  private openHatNoiseBuffer: AudioBuffer | null = null;
+  private hatNoiseBuffers: Map<DrumKitMode, AudioBuffer> = new Map();
+  private openHatNoiseBuffers: Map<DrumKitMode, AudioBuffer> = new Map();
 
   // Waveshaper distortion curves
   private distWarmCurve: Float32Array | null = null;
@@ -108,6 +130,8 @@ export class SampleAccurateAudioEngine {
 
   // Active scheduled nodes for instant cleanup (using Set to avoid unbounded array growth or orphan nodes)
   private activeNodes: Set<{ stop: (time: number) => void; onended: ((this: AudioScheduledSourceNode, ev: Event) => void) | null }> = new Set();
+  private activeHatVoices: Set<ActiveHatVoice> = new Set();
+  private activeBassVoice: ActiveBassVoice | null = null;
 
   // Transport state
   private isPlaying = false;
@@ -243,35 +267,59 @@ export class SampleAccurateAudioEngine {
     const sData = this.snareNoiseBuffer.getChannelData(0);
     for (let i = 0; i < snareSamples; i++) sData[i] = nextNoise();
 
-    // Inharmonic Metallic Hat Buffer (Analogue Roland TR-808/909 Modeling)
-    const inharmonicFreqs = [245, 306, 384, 422, 659, 866];
+    // Build every kit once per AudioContext. Playback only selects a buffer,
+    // avoiding waveform generation and large allocations in scheduler ticks.
+    this.hatNoiseBuffers.clear();
+    this.openHatNoiseBuffers.clear();
+    const buildHatBuffer = (
+      durationSec: number,
+      inharmonicFreqs: number[],
+      metalRatio: number,
+      noiseRatio: number,
+    ): AudioBuffer => {
+      const sampleCount = Math.ceil(sampleRate * durationSec);
+      const buffer = ctx.createBuffer(1, sampleCount, sampleRate);
+      const data = buffer.getChannelData(0);
+      const frequencyCount = Math.max(1, inharmonicFreqs.length);
 
-    // Closed Hat noise buffer (0.05s)
-    const hatSamples = Math.ceil(sampleRate * 0.05);
-    this.hatNoiseBuffer = ctx.createBuffer(1, hatSamples, sampleRate);
-    const hData = this.hatNoiseBuffer.getChannelData(0);
-    for (let i = 0; i < hatSamples; i++) {
-      const t = i / sampleRate;
-      let metal = 0;
-      for (let f = 0; f < inharmonicFreqs.length; f++) {
-        metal += Math.sin(2 * Math.PI * inharmonicFreqs[f] * t) > 0 ? 0.08 : -0.08;
-      }
-      const noise = nextNoise() * 0.7;
-      hData[i] = metal * 0.48 + noise * 0.52;
-    }
+      for (let i = 0; i < sampleCount; i++) {
+        const t = i / sampleRate;
+        let metal = 0;
+        for (let f = 0; f < inharmonicFreqs.length; f++) {
+          metal += Math.sin(2 * Math.PI * inharmonicFreqs[f] * t) >= 0 ? 1 : -1;
+        }
 
-    // Open-hat noise buffer (0.25s)
-    const ohSamples = Math.ceil(sampleRate * 0.25);
-    this.openHatNoiseBuffer = ctx.createBuffer(1, ohSamples, sampleRate);
-    const ohData = this.openHatNoiseBuffer.getChannelData(0);
-    for (let i = 0; i < ohSamples; i++) {
-      const t = i / sampleRate;
-      let metal = 0;
-      for (let f = 0; f < inharmonicFreqs.length; f++) {
-        metal += Math.sin(2 * Math.PI * inharmonicFreqs[f] * t) > 0 ? 0.08 : -0.08;
+        // Normalization keeps kits with a denser oscillator bank at the same
+        // peak range and leaves headroom before the dedicated hat limiter.
+        const normalizedMetal = (metal / frequencyCount) * 0.62;
+        data[i] = normalizedMetal * metalRatio + nextNoise() * 0.62 * noiseRatio;
       }
-      const noise = nextNoise() * 0.7;
-      ohData[i] = metal * 0.45 + noise * 0.55;
+      return buffer;
+    };
+
+    const drumKits = Object.keys(DRUM_KIT_SYNTH_CONFIGS) as DrumKitMode[];
+    for (const kit of drumKits) {
+      const config = DRUM_KIT_SYNTH_CONFIGS[kit];
+      this.hatNoiseBuffers.set(
+        kit,
+        buildHatBuffer(
+          HAT_MIX_CONFIG.closedMaxDurationSec + 0.01,
+          config.hatInharmonicFreqs,
+          config.hatMetalRatio,
+          config.hatNoiseRatio,
+        ),
+      );
+
+      const openMetalRatio = config.hatMetalRatio * 0.92;
+      this.openHatNoiseBuffers.set(
+        kit,
+        buildHatBuffer(
+          HAT_MIX_CONFIG.openDurationSec + 0.02,
+          config.hatInharmonicFreqs,
+          openMetalRatio,
+          1 - openMetalRatio,
+        ),
+      );
     }
   }
 
@@ -971,6 +1019,16 @@ export class SampleAccurateAudioEngine {
     this.trackNode(osc);
   }
 
+  private chokeHats(when: number) {
+    this.activeHatVoices.forEach((voice) => {
+      try {
+        voice.gain.gain.cancelScheduledValues(when);
+        voice.gain.gain.setTargetAtTime(0, when, 0.015);
+      } catch (e) {}
+    });
+    this.activeHatVoices.clear();
+  }
+
   private playHat(
     when: number,
     velocity = 75,
@@ -979,6 +1037,8 @@ export class SampleAccurateAudioEngine {
     durationSec?: number
   ) {
     if (!this.ctx || !this.hatNoiseBuffer) return;
+    this.chokeHats(when);
+    
     const noise = this.ctx.createBufferSource();
     noise.buffer = this.hatNoiseBuffer;
 
@@ -1019,10 +1079,21 @@ export class SampleAccurateAudioEngine {
     noise.start(when);
     noise.stop(when + dur + 0.010);
     this.trackNode(noise);
+    
+    this.activeHatVoices.add({
+      source: noise,
+      gain: gain,
+      startedAt: when,
+      envelopeEndAt: when + dur,
+      stopAt: when + dur + 0.010,
+      peakGain: startVol,
+      isOpen: false,
+    });
   }
 
   private playOpenHat(when: number, velocity = 80) {
     if (!this.ctx || !this.openHatNoiseBuffer) return;
+    this.chokeHats(when);
     const dur = 0.20;
     const noise = this.ctx.createBufferSource();
     noise.buffer = this.openHatNoiseBuffer;
@@ -1044,6 +1115,16 @@ export class SampleAccurateAudioEngine {
     noise.start(when);
     noise.stop(when + dur + 0.005);
     this.trackNode(noise);
+    
+    this.activeHatVoices.add({
+      source: noise,
+      gain: gain,
+      startedAt: when,
+      envelopeEndAt: when + dur,
+      stopAt: when + dur + 0.005,
+      peakGain: Math.max(0.001, (velocity / 127) * 0.11),
+      isOpen: true,
+    });
   }
 
   private play808Bass(
@@ -1056,7 +1137,7 @@ export class SampleAccurateAudioEngine {
   ) {
     if (!this.ctx) return;
     const freq = 440 * Math.pow(2, (midiNote - 69) / 12);
-    const vol = (velocity / 127) * 0.75; // Sub presence without clipping
+    const vol = (velocity / 127) * 0.65; // Synced with WAV without clipping
     const cfg = BASS_808_CONFIGS[drive] || BASS_808_CONFIGS.warm;
 
     const trackGain = this.getOrCreateTrackGain("bass");
