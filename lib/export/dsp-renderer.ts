@@ -117,7 +117,7 @@ class SeededRandom {
 
 // Soft-Clipping Saturation with Drive
 function applyWaveshaper(sample: number, drive: BassDrive): number {
-  const k = drive === "overdrive" ? 8 : drive === "warm" ? 2 : 0;
+  const k = drive === "overdrive" ? 40 : drive === "warm" ? 2 : 0;
   if (k === 0) return Math.max(-1, Math.min(1, sample));
   const x = Math.max(-2, Math.min(2, sample));
   return ((Math.PI + k) * x) / (Math.PI + k * Math.abs(x));
@@ -437,7 +437,12 @@ export function renderDspAudio({
           const phaseInc = currentFreq / sampleRate;
           phase = (phase + phaseInc) % 1.0;
 
-          const env = baseVel * Math.exp(-progress * 2.8);
+          // Long sustained envelope ("dum" or "pur") without internal repetition
+          let env = baseVel;
+          if (progress > 0.9) { // Hold flat for 90% of the duration
+            const decayProg = (progress - 0.9) / 0.1;
+            env = baseVel * (1.0 - decayProg); // Soft linear fade for the final 10%
+          }
           const rawSine = Math.sin(2 * Math.PI * phase) * env;
 
           // Sidechain Kick -> 808 ducking factor

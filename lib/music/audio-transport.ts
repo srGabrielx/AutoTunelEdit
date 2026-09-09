@@ -325,7 +325,7 @@ export class SampleAccurateAudioEngine {
 
   private initDistortionCurves() {
     const kWarm = 2;
-    const kOverdrive = 8;
+    const kOverdrive = 40;
     this.distWarmCurve = new Float32Array(8192);
     this.distOverdriveCurve = new Float32Array(8192);
 
@@ -1175,16 +1175,16 @@ export class SampleAccurateAudioEngine {
       satOsc.frequency.exponentialRampToValueAtTime(freq * 1.45, when + durationSec * 0.75);
     }
 
-    // Parallel Gain Envelopes with smooth sustain
-    const sustainHold = Math.min(0.25, durationSec * 0.4);
+    // Parallel Gain Envelopes with smooth sustain ("dum/pur" sound)
+    const sustainHold = Math.min(1.5, durationSec * 0.95); // Extremely long hold for fundamental
     
     cleanGain.gain.setValueAtTime(Math.max(0.001, vol * cfg.cleanSubGain), when);
     cleanGain.gain.setValueAtTime(Math.max(0.001, vol * cfg.cleanSubGain), when + sustainHold);
-    cleanGain.gain.exponentialRampToValueAtTime(0.001, when + durationSec);
+    cleanGain.gain.linearRampToValueAtTime(0.001, when + durationSec); // Soft linear fade instead of sharp exp decay
 
     satGain.gain.setValueAtTime(Math.max(0.001, vol * cfg.parallelSatGain), when);
     satGain.gain.setValueAtTime(Math.max(0.001, vol * cfg.parallelSatGain), when + sustainHold);
-    satGain.gain.exponentialRampToValueAtTime(0.001, when + durationSec);
+    satGain.gain.linearRampToValueAtTime(0.001, when + durationSec);
 
     cleanOsc.connect(cleanGain).connect(trackGain);
     satOsc.connect(satDist).connect(satLowpass).connect(satGain).connect(trackGain);

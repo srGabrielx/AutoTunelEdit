@@ -44,9 +44,10 @@ export default function SplashScreen({ onFinish }: { onFinish: () => void }) {
         muted
         playsInline
         style={{
-          width: "100%",
-          height: "100%",
-          objectFit: "cover",
+          width: "160px",
+          height: "auto",
+          maxWidth: "80%",
+          objectFit: "contain",
         }}
       >
         <source src="/off-the-wall.webm" type="video/webm" />

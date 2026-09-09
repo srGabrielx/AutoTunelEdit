@@ -39,11 +39,11 @@ export function generateBass(
     const notesInBlock = Math.max(1, Math.floor(16 * rhythmDensity));
     const stepSize = Math.floor(block.durationTicks / notesInBlock);
 
-    const octaveJumpProb = (plan.bassProfile?.octaveJumpProbability ?? 0.15) * 0.2; // Less octave jumps for lower bass
-    const sustainRatio = (plan.bassProfile?.sustainRatio ?? 1.0) * 0.5; // Drier, shorter phrases
+    const octaveJumpProb = (plan.bassProfile?.octaveJumpProbability ?? 0.15) * 0.1; // Less octave jumps for lower bass
+    const sustainRatio = (plan.bassProfile?.sustainRatio ?? 1.0) * 1.5; // Longer, more sustained "dum/pur" phrases
     const bassType = plan.bassProfile?.type ?? '808';
 
-    for (let i = 0; i < notesInBlock; i++) {
+    for (let i = 0; i < 1; i++) { // Only allow ONE long sustained note per block
       if (currentTick >= endTick) break;
 
       // Octave jump if permitted by profile
@@ -51,10 +51,9 @@ export function generateBass(
       // Força o 808 para a oitava de sub-grave (C1=24 até B1=35)
       let bassNote = (block.rootNote % 12) + 24;
       if (applyOctaveJump) bassNote += 12;
-      const baseDuration = Math.min(stepSize, 480);
-      const duration = Math.max(60, Math.floor(baseDuration * sustainRatio)); // Shorter minimum duration
+      const duration = Math.min(block.durationTicks, 1920); // Hold for the entire block duration, max 1 bar
       
-      const restProb = plan.bassProfile?.restProbability ?? ((plan.bassProfile?.syncWithKick ?? 0.5) > 0.6 ? 0.9 : 0.6);
+      const restProb = plan.bassProfile?.restProbability ?? 0.15; // Extremely low rest probability for a fluid groove
       const isRest = rng.next() > restProb;
 
       if (!isRest) {
@@ -74,7 +73,7 @@ export function generateBass(
         });
       }
       
-      currentTick += stepSize;
+      currentTick += block.durationTicks;
     }
   }
 
