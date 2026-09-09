@@ -917,9 +917,9 @@ export class SampleAccurateAudioEngine {
         } else if (ev.instrument === "snare") {
           this.playSnare(hitTime, ev.velocity, event.drumKit);
         } else if (ev.instrument === "open-hat") {
-          this.playOpenHat(hitTime, ev.velocity);
+          this.playOpenHat(hitTime, ev.velocity, event.drumKit);
         } else {
-          this.playHat(hitTime, ev.velocity, ev.pitchCents, ev.filterCurve, ev.durationSec);
+          this.playHat(hitTime, ev.velocity, event.drumKit, ev.pitchCents, ev.filterCurve, ev.durationSec);
         }
       }
     }
@@ -1032,15 +1032,17 @@ export class SampleAccurateAudioEngine {
   private playHat(
     when: number,
     velocity = 75,
+    kit: DrumKitMode = "trap-808",
     pitchCents?: number,
     filterCurve?: { startHz: number; endHz: number; durationMs: number },
     durationSec?: number
   ) {
-    if (!this.ctx || !this.hatNoiseBuffer) return;
+    const buffer = this.hatNoiseBuffers.get(kit);
+    if (!this.ctx || !buffer) return;
     this.chokeHats(when);
     
     const noise = this.ctx.createBufferSource();
-    noise.buffer = this.hatNoiseBuffer;
+    noise.buffer = buffer;
 
     if (pitchCents !== undefined && pitchCents !== 0) {
       try {
@@ -1091,12 +1093,13 @@ export class SampleAccurateAudioEngine {
     });
   }
 
-  private playOpenHat(when: number, velocity = 80) {
-    if (!this.ctx || !this.openHatNoiseBuffer) return;
+  private playOpenHat(when: number, velocity = 80, kit: DrumKitMode = "trap-808") {
+    const buffer = this.openHatNoiseBuffers.get(kit);
+    if (!this.ctx || !buffer) return;
     this.chokeHats(when);
     const dur = 0.20;
     const noise = this.ctx.createBufferSource();
-    noise.buffer = this.openHatNoiseBuffer;
+    noise.buffer = buffer;
 
     const filter = this.ctx.createBiquadFilter();
     filter.type = "highpass";

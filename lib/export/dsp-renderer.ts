@@ -476,10 +476,10 @@ export function renderDspAudio({
 
         // CHOKE GROUP: Encontra o próximo hi-hat para truncar a duração se necessário
         let nextHatSample = totalSamples;
-        if (ev.instrument === "open-hat" || ev.instrument === "closed-hat") {
+        if (ev.instrument === "open-hat" || ev.instrument === "hat") {
           for (let k = idx + 1; k < drumEvents.length; k++) {
             const nextEv = drumEvents[k];
-            if (nextEv.instrument === "open-hat" || nextEv.instrument === "closed-hat") {
+            if (nextEv.instrument === "open-hat" || nextEv.instrument === "hat") {
                nextHatSample = loopOffsetSamples + ticksToSamples(nextEv.startTick, safeBpm, sampleRate);
                break;
             }

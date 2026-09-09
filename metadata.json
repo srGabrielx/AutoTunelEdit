@@ -1,0 +1,8 @@
+{
+  "name": "AutoTunel Studio",
+  "description": "Gerador de Melodias, Drums & 808",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}
