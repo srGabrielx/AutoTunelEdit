@@ -48,6 +48,7 @@ export default function SplashScreen({ onFinish }: { onFinish: () => void }) {
           height: "auto",
           maxWidth: "80%",
           objectFit: "contain",
+          filter: "hue-rotate(150deg)",
         }}
       >
         <source src="/off-the-wall.webm" type="video/webm" />
