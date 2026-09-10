@@ -9,6 +9,7 @@ import {
 import {
   BASS_808_CONFIGS,
   DRUM_KIT_SYNTH_CONFIGS,
+  HAT_MIX_CONFIG,
   getMelodySynthConfig,
   MASTER_BUS_CONFIG,
 } from "../music/synthesis-presets";
@@ -568,18 +569,18 @@ export function renderDspAudio({
             }
           });
         } else if (ev.instrument === "open-hat") {
-          const durSec = 0.20;
+          const durSec = HAT_MIX_CONFIG.openDurationSec;
           let durSamples = Math.floor(durSec * sampleRate);
           if (startSample + durSamples > nextHatSample) {
             durSamples = nextHatSample - startSample;
           }
-          const vel = (currentVel / 127) * 0.11 * effectiveDrumsVol; // Synced with live preview
+          const vel = (currentVel / 127) * HAT_MIX_CONFIG.openGain * effectiveDrumsVol; // Synced with live preview
           const inharmonicFreqs = [245, 306, 384, 422, 659, 866];
 
           const hpFilter = new BiquadFilter();
-          hpFilter.setHighpass(5800, 1.0, sampleRate);
+          hpFilter.setHighpass(DRUM_KIT_SYNTH_CONFIGS[drumKit].openHatCutoff, 1.0, sampleRate);
           const lpFilter = new BiquadFilter();
-          lpFilter.setLowpass(14000, 0.707, sampleRate);
+          lpFilter.setLowpass(HAT_MIX_CONFIG.openLowpassHz, 0.707, sampleRate);
 
           for (let n = 0; n < durSamples; n++) {
             const sampleIdx = startSample + n;

@@ -29,7 +29,7 @@ export default function SplashScreen({ onFinish }: { onFinish: () => void }) {
         left: 0,
         width: "100vw",
         height: "100vh",
-        backgroundColor: "#08080a",
+        backgroundColor: "#3b0764",
         zIndex: 99999,
         display: "flex",
         alignItems: "center",

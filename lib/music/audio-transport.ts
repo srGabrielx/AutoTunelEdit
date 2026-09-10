@@ -1097,21 +1097,21 @@ export class SampleAccurateAudioEngine {
     const buffer = this.openHatNoiseBuffers.get(kit);
     if (!this.ctx || !buffer) return;
     this.chokeHats(when);
-    const dur = 0.20;
+    const dur = HAT_MIX_CONFIG.openDurationSec;
     const noise = this.ctx.createBufferSource();
     noise.buffer = buffer;
 
     const filter = this.ctx.createBiquadFilter();
     filter.type = "highpass";
-    filter.frequency.value = Math.min(5800, (this.ctx.sampleRate / 2) - 100);
+    filter.frequency.value = Math.min(DRUM_KIT_SYNTH_CONFIGS[kit].openHatCutoff, (this.ctx.sampleRate / 2) - 100);
 
     const tameFilter = this.ctx.createBiquadFilter();
     tameFilter.type = "lowpass";
-    tameFilter.frequency.setValueAtTime(Math.min(14000, (this.ctx.sampleRate / 2) - 100), when);
+    tameFilter.frequency.setValueAtTime(Math.min(HAT_MIX_CONFIG.openLowpassHz, (this.ctx.sampleRate / 2) - 100), when);
 
     const trackGain = this.getOrCreateTrackGain("drums");
     const gain = this.ctx.createGain();
-    gain.gain.setValueAtTime(Math.max(0.001, (velocity / 127) * 0.11), when);
+    gain.gain.setValueAtTime(Math.max(0.001, (velocity / 127) * HAT_MIX_CONFIG.openGain), when);
     gain.gain.exponentialRampToValueAtTime(0.001, when + dur);
 
     noise.connect(filter).connect(tameFilter).connect(gain).connect(trackGain);
@@ -1125,7 +1125,7 @@ export class SampleAccurateAudioEngine {
       startedAt: when,
       envelopeEndAt: when + dur,
       stopAt: when + dur + 0.005,
-      peakGain: Math.max(0.001, (velocity / 127) * 0.11),
+      peakGain: Math.max(0.001, (velocity / 127) * HAT_MIX_CONFIG.openGain),
       isOpen: true,
     });
   }

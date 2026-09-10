@@ -285,11 +285,11 @@ export const BASS_808_MIX_CONFIG = {
 
 export const HAT_MIX_CONFIG = {
   closedGain: 0.075,
-  openGain: 0.09,
+  openGain: 0.06,
   closedMaxDurationSec: 0.06,
-  openDurationSec: 0.18,
+  openDurationSec: 0.14,
   closedLowpassHz: 12_000,
-  openLowpassHz: 11_500,
+  openLowpassHz: 9_500,
   busGain: 0.9,
   compressorThresholdDb: -14,
   compressorKneeDb: 6,
