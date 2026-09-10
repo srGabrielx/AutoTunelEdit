@@ -6,14 +6,14 @@ export default function SplashScreen({ onFinish }: { onFinish: () => void }) {
   const [isFading, setIsFading] = useState(false);
 
   useEffect(() => {
-    // Keep it alive for a minimum time, e.g. 3.5 seconds
+    // Keep the complete splash animation to two seconds.
     const timer1 = setTimeout(() => {
       setIsFading(true);
-    }, 3500);
+    }, 1500);
 
     const timer2 = setTimeout(() => {
       onFinish();
-    }, 4500);
+    }, 2000);
 
     return () => {
       clearTimeout(timer1);
@@ -35,7 +35,7 @@ export default function SplashScreen({ onFinish }: { onFinish: () => void }) {
         alignItems: "center",
         justifyContent: "center",
         opacity: isFading ? 0 : 1,
-        transition: "opacity 1s ease-in-out",
+        transition: "opacity 0.5s ease-in-out",
         pointerEvents: "none",
       }}
     >
