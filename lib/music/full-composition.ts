@@ -422,12 +422,11 @@ function shapeDrumsForSection(
     hits = [...dna.hits];
   }
 
+  // Remove open hats from generated and previously saved arrangement DNA.
+  hits = hits.filter((hit) => hit.drum !== "open-hat");
+
   // Adições por seção para desenvolvimento musical
   if (section.type === "drop") {
-    // Adiciona open-hat no início do drop para impacto
-    if (!hits.some((h) => h.drum === "open-hat" && h.step === 0)) {
-      hits.push(makeProfileHit(input, sectionSeed, "open-hat", 0));
-    }
     // Aumenta densidade de kicks e hats
     if (!hits.some((h) => h.drum === "kick" && h.step === 14)) {
       hits.push(makeProfileHit(input, sectionSeed, "kick", 14));

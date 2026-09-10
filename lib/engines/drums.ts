@@ -218,21 +218,16 @@ export function generateDrums(options: GenerateOptions): DrumResult {
       
       const energy = plan.energyCurve[s] ?? 0.5;
       
-      // Determine base hat type
-      const isOpenHatAcc = isOffbeat && deterministicRng(seed, "openhat-acc", s) > 0.65;
-      let hatType: DrumHit["drum"] = isOpenHatAcc ? "open-hat" : "hat";
-      
-      if (s % 8 === 6 && deterministicRng(seed, "accent-openhat", s) > 0.5) {
-        hatType = "open-hat";
-      }
-      
+      // Open hats are disabled; use the softer closed hat only.
+      const hatType: DrumHit["drum"] = "hat";
+
       // Should we roll? Only if energy is high enough and not on a downbeat (usually)
       // The lower the energy, the lower the chance of rolling
       const dynamicRollChance = (profile?.hatRollThreshold ?? rollChanceThreshold) + ( (0.8 - energy) * 0.5 ); 
       let roll: DrumRoll | undefined = undefined;
       let stepVel = isStrongBeat ? 86 : (isOffbeat ? 68 : 78);
       
-      if (hatType === "hat" && !isStrongBeat && comp >= 3 && (profile?.hatRolls ?? true)) {
+      if (!isStrongBeat && comp >= 3 && (profile?.hatRolls ?? true)) {
         if (deterministicRng(seed, "hat-roll", s) > dynamicRollChance) {
           const rollCount = deterministicRng(seed, "roll-count", s) > 0.4 ? (profile?.favoredRollCount ?? dna.favoredRollCount) : 2;
           const appliesPitchDrop = deterministicRng(seed, "pitch-drop", s) < (profile?.pitchDropProbability ?? dna.pitchDropProbability);

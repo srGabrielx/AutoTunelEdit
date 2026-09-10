@@ -779,10 +779,12 @@ export default function BeatStudio() {
 
   // Playback state
   const [playbackMode, setPlaybackMode] = useState<PlaybackMode | null>(null);
+  const [playingArrangementBlockIndex, setPlayingArrangementBlockIndex] = useState<number | null>(null);
   const [isLooping, setIsLooping] = useState(true);
 
   // Audio Engine & Web Worker RPC Client References
   const audioEngineRef = useRef<SampleAccurateAudioEngine>(new SampleAccurateAudioEngine());
+  const playingArrangementBlockIndexRef = useRef<number | null>(null);
   const workerClientRef = useRef<StudioWorkerClient | null>(null);
   const mutationEpochRef = useRef(0);
   const generationEpochRef = useRef(0);
@@ -811,6 +813,7 @@ export default function BeatStudio() {
     drumHumanize,
     isLooping,
     playbackMode,
+    playingArrangementBlockIndex,
     trackSettings,
     arrangementBlocks,
     currentBlockIndex,
@@ -845,6 +848,7 @@ export default function BeatStudio() {
       drumHumanize,
       isLooping,
       playbackMode,
+      playingArrangementBlockIndex,
       trackSettings,
       arrangementBlocks,
       currentBlockIndex,
@@ -868,7 +872,11 @@ export default function BeatStudio() {
         muteDrums,
         bassDrive,
         drumKit,
-        blocks: playbackMode === "all" ? arrangementBlocks : undefined,
+        blocks: playbackMode === "all"
+          ? (playingArrangementBlockIndex !== null && arrangementBlocks[playingArrangementBlockIndex]
+            ? [arrangementBlocks[playingArrangementBlockIndex]]
+            : arrangementBlocks)
+          : undefined,
       });
     }
   }, [
@@ -892,6 +900,7 @@ export default function BeatStudio() {
     drumHumanize,
     isLooping,
     playbackMode,
+    playingArrangementBlockIndex,
     trackSettings,
     arrangementBlocks,
     currentBlockIndex,
@@ -906,6 +915,7 @@ export default function BeatStudio() {
 
   const syncVisiblePlaybackSection = useCallback((sectionIndex: number) => {
     const state = stateRef.current;
+    if (playingArrangementBlockIndexRef.current !== null) return;
     if (state.playbackMode !== "all" || state.currentBlockIndex === sectionIndex) return;
     const block = state.arrangementBlocks[sectionIndex];
     if (!block) return;
@@ -930,6 +940,8 @@ export default function BeatStudio() {
   const stopPlayback = useCallback(() => {
     audioEngineRef.current.stop();
     setPlaybackMode(null);
+    setPlayingArrangementBlockIndex(null);
+    playingArrangementBlockIndexRef.current = null;
   }, []);
 
   const handleVolumeChange = useCallback((id: string, vol: number) => {
@@ -950,12 +962,16 @@ export default function BeatStudio() {
   }, []);
 
   // Start playback helper with sample-accurate lookahead
-  const startPlayback = useCallback((mode: PlaybackMode) => {
+  const startPlayback = useCallback((mode: PlaybackMode, blockIndex?: number) => {
     stopPlayback();
-    setPlaybackMode(mode);
-    if (mode === "all") setIsAutoArrangement(true);
 
     const s = stateRef.current;
+    const selectedBlock = blockIndex !== undefined ? s.arrangementBlocks[blockIndex] : undefined;
+    setPlaybackMode(mode);
+    setPlayingArrangementBlockIndex(selectedBlock ? blockIndex! : null);
+    playingArrangementBlockIndexRef.current = selectedBlock ? blockIndex! : null;
+    if (mode === "all") setIsAutoArrangement(!selectedBlock);
+    if (selectedBlock && blockIndex !== undefined) selectArrangementBlock(blockIndex);
     // Apply current track volumes and pans before playback start
     if (s.trackSettings) {
       Object.entries(s.trackSettings).forEach(([id, cfg]) => {
@@ -977,16 +993,18 @@ export default function BeatStudio() {
       muteDrums: s.muteDrums,
       bassDrive: s.bassDrive,
       drumKit: s.drumKit,
-      blocks: mode === "all" ? s.arrangementBlocks : undefined,
+      blocks: mode === "all" ? (selectedBlock ? [selectedBlock] : s.arrangementBlocks) : undefined,
       onStop: () => {
         setPlaybackMode(null);
+        setPlayingArrangementBlockIndex(null);
+        playingArrangementBlockIndexRef.current = null;
       },
     });
-    if (mode === "all" && s.arrangementBlocks.length > 0) {
+    if (mode === "all" && (selectedBlock || s.arrangementBlocks.length > 0)) {
       const expectedTimeline = buildCanonicalTimeline({
         bpm: s.bpm,
         melodyLayers: s.melodyLayers,
-        blocks: s.arrangementBlocks,
+        blocks: selectedBlock ? [selectedBlock] : s.arrangementBlocks,
         muteBass: s.muteBass,
         muteDrums: s.muteDrums,
       });
@@ -997,7 +1015,7 @@ export default function BeatStudio() {
         setError("O player não corresponde ao snapshot canônico atual.");
       }
     }
-  }, [stopPlayback]);
+  }, [stopPlayback, selectArrangementBlock]);
 
   // BPM Input Handler (Live Tempo Update Without Stopping Music)
   const handleBpmChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -1032,10 +1050,14 @@ export default function BeatStudio() {
         muteDrums,
         bassDrive,
         drumKit,
-        blocks: playbackMode === "all" ? arrangementBlocks : undefined,
+        blocks: playbackMode === "all"
+          ? (playingArrangementBlockIndex !== null && arrangementBlocks[playingArrangementBlockIndex]
+            ? [arrangementBlocks[playingArrangementBlockIndex]]
+            : arrangementBlocks)
+          : undefined,
       });
     }
-  }, [bpm, melodyLayers, bass, drums, muteBass, muteDrums, bassDrive, drumKit, playbackMode, arrangementBlocks]);
+  }, [bpm, melodyLayers, bass, drums, muteBass, muteDrums, bassDrive, drumKit, playbackMode, arrangementBlocks, playingArrangementBlockIndex]);
 
   // Artist Preset Handler
   // Artist Preset Handler (Loads Hit Vibe & Automatically Generates Full Beat)
@@ -1602,7 +1624,7 @@ export default function BeatStudio() {
     patchActiveBlock({ bass: newBass });
   };
 
-  // Drum step edit (Kick 96 -> Snare 90 -> Hat 72 -> Open-Hat 65 -> Off)
+  // Drum step edit (Kick 96 -> Snare 90 -> Hat 72 -> Off)
   const toggleDrumStep = (stepIdx: number) => {
     if (!drums) return;
     const currentHits = drums.hits.filter((h) => h.step === stepIdx);
@@ -1610,7 +1632,6 @@ export default function BeatStudio() {
     if (currentHits.length === 0) updatedHits.push({ step: stepIdx, drum: "kick", velocity: 96 });
     else if (currentHits.some((h) => h.drum === "kick")) updatedHits.push({ step: stepIdx, drum: "snare", velocity: 90 });
     else if (currentHits.some((h) => h.drum === "snare")) updatedHits.push({ step: stepIdx, drum: "hat", velocity: 72 });
-    else if (currentHits.some((h) => h.drum === "hat")) updatedHits.push({ step: stepIdx, drum: "open-hat", velocity: 65 });
     const newDrums = { ...drums, hits: updatedHits.sort((a, b) => a.step - b.step) };
     setDrums(newDrums);
     patchActiveBlock({ drums: newDrums });
@@ -2643,6 +2664,18 @@ export default function BeatStudio() {
                         </button>
                       </div>
                     </div>
+                    <button
+                      className={`solo-btn w-full justify-center ${playingArrangementBlockIndex === currentBlockIndex ? "active" : ""}`}
+                      onClick={() =>
+                        playingArrangementBlockIndex === currentBlockIndex
+                          ? stopPlayback()
+                          : startPlayback("all", currentBlockIndex)
+                      }
+                      title="Reproduzir somente o bloco selecionado"
+                    >
+                      {playingArrangementBlockIndex === currentBlockIndex ? <IconStop size={14} /> : <IconPlay size={14} />}
+                      {playingArrangementBlockIndex === currentBlockIndex ? "Parar bloco" : "Tocar bloco selecionado"}
+                    </button>
                   </div>
                 )}
                 

@@ -917,7 +917,7 @@ export class SampleAccurateAudioEngine {
         } else if (ev.instrument === "snare") {
           this.playSnare(hitTime, ev.velocity, event.drumKit);
         } else if (ev.instrument === "open-hat") {
-          this.playOpenHat(hitTime, ev.velocity, event.drumKit);
+          continue; // Open hats are disabled.
         } else {
           this.playHat(hitTime, ev.velocity, event.drumKit, ev.pitchCents, ev.filterCurve, ev.durationSec);
         }

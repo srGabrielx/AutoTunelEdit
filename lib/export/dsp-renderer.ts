@@ -475,6 +475,9 @@ export function renderDspAudio({
           loopOffsetSamples + ticksToSamples(ev.startTick, safeBpm, sampleRate);
         const currentVel = ev.velocity;
 
+        // Open hats are intentionally omitted from exported audio.
+        if (ev.instrument === "open-hat") return;
+
         // CHOKE GROUP: Encontra o próximo hi-hat para truncar a duração se necessário
         let nextHatSample = totalSamples;
         if (ev.instrument === "open-hat" || ev.instrument === "hat") {
