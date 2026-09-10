@@ -29,7 +29,7 @@ export default function SplashScreen({ onFinish }: { onFinish: () => void }) {
         left: 0,
         width: "100vw",
         height: "100vh",
-        backgroundColor: "#3b0764",
+        backgroundColor: "#08080a",
         zIndex: 99999,
         display: "flex",
         alignItems: "center",
@@ -48,7 +48,6 @@ export default function SplashScreen({ onFinish }: { onFinish: () => void }) {
           height: "auto",
           maxWidth: "80%",
           objectFit: "contain",
-          filter: "hue-rotate(150deg)",
         }}
       >
         <source src="/off-the-wall.webm" type="video/webm" />
